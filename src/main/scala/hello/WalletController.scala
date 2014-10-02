@@ -54,7 +54,7 @@ class WalletController {
   
   @RequestMapping(value=Array("/api/V1/users/{userid}"), method=Array(RequestMethod.GET), produces = Array("application/json"), headers=Array("content-type=application/json"))
   def ViewUsers(@PathVariable("userid")  userId:String,@RequestHeader(value="If-None-Match", required=false) Etag: String):ResponseEntity[_]={
-		var usr :User =map_usr(userId);
+		var usr :User = map_usr(userId);
         var entity_tag1: String = Etag
 		var cc: CacheControl = new CacheControl()
         cc.setMaxAge(500)
