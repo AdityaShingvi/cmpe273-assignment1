@@ -15,6 +15,8 @@ import collection.JavaConversions._
 import javax.validation.Valid
 import org.springframework.validation.BindingResult
 import org.joda.time.DateTime
+import org.springframework.http.{HttpHeaders, ResponseEntity}
+import javax.ws.rs.core._
 
 @RestController
 @Configuration
@@ -51,11 +53,30 @@ class WalletController {
 }
   
   @RequestMapping(value=Array("/api/V1/users/{userid}"), method=Array(RequestMethod.GET), produces = Array("application/json"), headers=Array("content-type=application/json"))
-  def viewuser(@PathVariable("userid")  userId:String ):User={
+  def ViewUsers(@PathVariable("userid")  userId:String,@RequestHeader(value="If-None-Match", required=false) Etag: String):ResponseEntity[_]={
+		var usr :User =map_usr(userId);
+        var entity_tag1: String = Etag
+		var cc: CacheControl = new CacheControl()
+        cc.setMaxAge(500)
+        var entity_tag2: EntityTag = new EntityTag(Integer.toString(usr.hashCode()));
+        println(entity_tag2);
+        var responseHeader: HttpHeaders = new HttpHeaders	
+        responseHeader.setCacheControl(cc.toString())
+        responseHeader.add("Etag", entity_tag2.getValue())
+        if(entity_tag2.getValue().equalsIgnoreCase(entity_tag1)){
+        	 println("Not_Modified");
+                   new ResponseEntity[String]( null, responseHeader, HttpStatus.NOT_MODIFIED )   
+        } else {
+                println("Modified");
+        		new ResponseEntity[User]( usr, responseHeader, HttpStatus.OK )  
+        }
+  }
+  
+  /*def viewuser(@PathVariable("userid")  userId:String ):User={
 		var map_u1 = map_usr(userId)
        println(""+ map_u1.getEmail);
 		return map_u1;
-	} 
+	}*/ 
   
     @RequestMapping(value = Array("/api/V1/users/{userid}"), method = Array(RequestMethod.PUT), headers = Array("content-type=application/json"), consumes = Array("application/json"))
 	def upduser(@PathVariable("userid")  userId:String ,@RequestBody user : User ):User={
