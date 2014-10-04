@@ -80,6 +80,8 @@ class WalletController {
   
     @RequestMapping(value = Array("/api/V1/users/{userid}"), method = Array(RequestMethod.PUT), headers = Array("content-type=application/json"), consumes = Array("application/json"))
 	def upduser(@PathVariable("userid")  userId:String ,@RequestBody user : User ):User={
+      val currentTime = DateTime.now;
+      this.user.setcreated_at(currentTime.toString)
       var usr = new User()
       user.setUserId(userId)
       this.map_usr = this.map_usr + (userId -> user)
